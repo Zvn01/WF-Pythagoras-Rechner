@@ -1,15 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.IO;
-using System.Linq;
+using System;
 using System.Media;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+
 
 namespace WF_Pythagoras
 {
@@ -24,47 +16,68 @@ namespace WF_Pythagoras
         {
             try
             {
-                if (String.IsNullOrEmpty(textBox_kath_a.Text)) // Textbox A leer
-                {
-                    double kathB = Convert.ToDouble(textBox_kath_b.Text);
-                    double hypoC = Convert.ToDouble(textBox_hypo_c.Text);
 
-                    double kathA = Math.Pow(kathB, 2) + Math.Pow(hypoC, 2);
+                // Hypothenuse C rausfinden
 
-                    textBox_kath_a.Text = kathA.ToString();
-                }
-                if (String.IsNullOrEmpty(textBox_kath_b.Text)) // Textbox B leer
+                if (textBox_kath_a.Text != "" && textBox_kath_b.Text != "") 
                 {
                     double kathA = Convert.ToDouble(textBox_kath_a.Text);
-                    double hypoC = Convert.ToDouble(textBox_hypo_c.Text);
-                    double kathB = Math.Pow(kathA, 2) + Math.Pow(hypoC, 2);
-
-                    textBox_kath_b.Text = kathB.ToString();
-                }
-                if (String.IsNullOrEmpty(textBox_hypo_c.Text)) // Textbox C leer
-                {
-                    double kathA = Convert.ToDouble(textBox_kath_a.Text);
-                    double kathB = Convert.ToDouble(textBox_kath_b.Text);
-                    double hypoC = Math.Pow(kathA, 2) + Math.Pow(kathB, 2);
+                    double kathB = Convert.ToDouble(textBox_kath_b.Text);                   
+                    double hypoC = Math.Sqrt(kathA * kathA + kathB * kathB);
 
                     textBox_hypo_c.Text = hypoC.ToString();
                 }
-                else
+
+                // Kathete B rausfinden
+
+                else if (textBox_kath_a.Text != "" && textBox_hypo_c.Text != "") 
                 {
-                    SystemSounds.Exclamation.Play();
-                    MessageBox.Show("Bitte nur zwei Felder füllen.");
+                    double kathA = Convert.ToDouble(textBox_kath_a.Text);
+                    double hypoC = Convert.ToDouble(textBox_hypo_c.Text);
+
+                    if (hypoC < kathA)
+                    {
+                        SystemSounds.Exclamation.Play();
+                        MessageBox.Show("Die Hypotenuse C darf nicht kleiner sein als die Kathete B", "Fehler");
+                    }
+                    else
+                    {
+                        double kathB = Math.Sqrt(hypoC * hypoC - kathA * kathA);
+                        textBox_kath_b.Text = kathB.ToString();
+                    }
+ 
                 }
+
+                // Kathete A rausfinden
+
+                else if (textBox_kath_b.Text != "" && textBox_hypo_c.Text != "") 
+                {
+                    double kathB = Convert.ToDouble(textBox_kath_b.Text);
+                    double hypoC = Convert.ToDouble(textBox_hypo_c.Text);
+                    if (hypoC < kathB)
+                    {
+                        SystemSounds.Exclamation.Play();
+                        MessageBox.Show("Die Hypotenuse C darf nicht kleiner sein als die Kathete B", "Fehler");
+                    }
+                    else
+                    {
+                        double kathA = Math.Sqrt(hypoC * hypoC - kathB * kathB);
+                        textBox_kath_a.Text = kathA.ToString();
+                    }
+                }
+    
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 SystemSounds.Exclamation.Play();
-                MessageBox.Show("Bitte geben Sie mindestens zwei Werte in Zentimetern an.", "Fehler");
+                MessageBox.Show("Füllen Sie 2 Felder mit Zahlen aus.", "Fehler");
             }
 
             
 
         }
-
+      
+        // Clear Button
         private void clear_btn_Click(object sender, EventArgs e)
         {
             if (textBox_kath_a.Text != string.Empty || textBox_kath_b.Text != string.Empty || textBox_hypo_c.Text != string.Empty)
@@ -75,5 +88,69 @@ namespace WF_Pythagoras
             }
         }
 
+        // Blockieren nicht genutzter Textboxen bei der Berechnung
+        private void textBox_kath_a_TextChanged(object sender, EventArgs e)
+        {
+            if (textBox_kath_a.Text == "")
+            {
+                textBox_kath_b.Enabled = true;
+                textBox_hypo_c.Enabled = true;
+            }
+            else if (textBox_kath_b.Text != "" && textBox_hypo_c.Text == "")
+            {
+                textBox_kath_b.Enabled = true;
+                textBox_hypo_c.Enabled = false;
+            }
+            else if (textBox_hypo_c.Text != "" && textBox_kath_b.Text == "")
+            {
+                textBox_hypo_c.Enabled = true;
+                textBox_kath_b.Enabled = false;
+            }
+        }
+
+        private void textBox_kath_b_TextChanged(object sender, EventArgs e)
+        {
+            if (textBox_kath_b.Text == "")
+            {
+                textBox_kath_a.Enabled = true;
+                textBox_hypo_c.Enabled = true;
+            }
+            else if (textBox_hypo_c.Text != "")
+            {
+                textBox_kath_b.Enabled = false;
+                textBox_kath_a.Enabled = true;
+
+            }
+            else if (textBox_kath_a.Text != "")
+            {
+                textBox_kath_b.Enabled = true;
+                textBox_hypo_c.Enabled = false;
+            }
+            else
+            {
+                textBox_kath_a.Enabled = true;
+                textBox_kath_b.Enabled = true;
+                textBox_hypo_c.Enabled = true;
+            }
+        }
+
+        private void textBox_hypo_c_TextChanged(object sender, EventArgs e)
+        {
+            if (textBox_hypo_c.Text == "")
+            {
+                textBox_kath_b.Enabled = true;
+                textBox_kath_a.Enabled = true;
+            }
+            else if (textBox_kath_a.Text == "" && textBox_kath_b.Text != "")
+            {
+                textBox_kath_a.Enabled = false;
+                textBox_kath_b.Enabled = true;
+            }
+            else if (textBox_kath_b.Text == "" && textBox_kath_a.Text != "")
+            {
+                textBox_kath_a.Enabled = true;
+                textBox_kath_b.Enabled = false;
+            }
+        }
     }
 }
